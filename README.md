@@ -4,7 +4,9 @@
 
 # 03 Data and Software Setup
 
-- Clone repository: git clone https://github.com/solislemuslab/phylo-practicum.
+- Clone repository
+% git clone https://github.com/solislemuslab/phylo-practicum.
+
 - Download data and move into data subfolder and unzip files
 
 --> Installation
@@ -15,20 +17,21 @@
 
 - Make executable runnable (in Terminal)
 
-cd ~/software/raxml-ng_v1.2.2_macos
-chmod + x raxml-ng
-raxml -ng -v (to very installation)
+% cd ~/software/raxml-ng_v1.2.2_macos
+% chmod + x raxml-ng
+% raxml -ng -v (to very installation)
 
 -Add to PATH to run raxml-ng from any where 
 
-nano ~/.zshrc
+% nano ~/.zshrc
+
 export PATH="$HOME/software/raxml-ng_v1.2.2_macos:$PATH" (save, exit, and reload to confirm changes)
 
 (2) SuperTriplets 
 
 -Check if Java is installed
 
-java -h 
+% java -h 
 
 -Download SuperTriplets java file and put into software folder inside a subfolder named supertriplets
 
@@ -37,23 +40,23 @@ java -h
 
 -Install with conda
 
-conda config --add channels bioconda
-conda install aster
+% conda config --add channels bioconda
+% conda install aster
 
 -To check installation location and existence
 
-conda list
-wastral
+% conda list
+% wastral
 
 (4) Julia and packages (in Terminal)
 
 - Install Julia 
 
-curl -fsSL https://install.julialang.org | sh
+% curl -fsSL https://install.julialang.org | sh
 
 -Run this command after Terminal restart
 
-juliaup add release
+% juliaup add release
 
 -Add other packages
 
@@ -68,21 +71,21 @@ add DataFrames
 Hit backspace to leave package mode and leave Julia by typing exit()
 
 
-(4) HyDe
+(5) HyDe
 
 -Move to software folder and download 
 
-git clone https://github.com/pblischak/HyDe.git
+% git clone https://github.com/pblischak/HyDe.git
 
 -Install HyDe
 
-cd HyDe
-python3 -m pip install -r requirements.txt
-python3 -m pip install .
+% cd HyDe
+% python3 -m pip install -r requirements.txt
+% python3 -m pip install .
 
 -Check installation
 
-run_hyde.py
+% run_hyde.py
 
 
 
@@ -90,17 +93,17 @@ run_hyde.py
 
 --> Running RAxML on 10 genes 
 
--Move to data/Wheat_Relative_History_Data_Glemin_et_al folder and create OneCopyGene-trimmed folder for the first 10 genes
+--Move to data/Wheat_Relative_History_Data_Glemin_et_al folder and create OneCopyGene-trimmed folder for the first 10 genes
 
-mkdir OneCopyGenes-trimmed
-cd OneCopyGenes
-ls | head -n10 | xargs -I {} cp "{}" ../OneCopyGenes-trimmed
+% mkdir OneCopyGenes-trimmed
+% cd OneCopyGenes
+% ls | head -n10 | xargs -I {} cp "{}" ../OneCopyGenes-trimmed
 
--Move to the cold foler to run 04-raxml.sh script
+--Move to the code folder to run 04-raxml.sh script
 
-./04-raxml.sh
+% ./04-raxml.sh
 
--Analyze inferred trees in R
+~Analyze inferred trees in R
 
 library(ape)
 library(phangorn)
@@ -124,13 +127,13 @@ for(tree_file in tree_files){ ##go thru each file and read the tree
 #Find the appropriate root taxon
 root_taxa <- c("H_vulgare_HVens23", "Er_bonaepartis_TB1", "S_vavilovii_Tr279", "Ta_caputMedusae_TB2")
 
-# Extract the first matching species for each tree
+#Extract the first matching species for each tree
 gene_tree_outgroup<- rep(NA,length(gene_trees))
 for(i in 1:length(gene_trees)){
   gene_tree <- gene_trees[[i]]
   found_taxa <- root_taxa[root_taxa %in% gene_tree$tip.label]
   
-  # Return the first one if it exists
+  #Return the first one if it exists
   if (length(found_taxa) > 0) {
     gene_tree_outgroup[i]<-found_taxa[1]
   }
@@ -147,7 +150,7 @@ for(i in 1:length(gene_trees)){
   gene_trees[[i]]<-chronos(gene_trees[[i]]) ## make ultrametric for nicer densitree
 }
 
--Visualize the trees 
+~Visualize the trees 
 
 plot(gene_trees[[2]]) # plots the second gene tree
 
@@ -161,13 +164,13 @@ ggplot(df, aes(x = all_labels, y = Freq)) +
   labs(x = "Individual", y = "Proportion")+
   theme(axis.text.x = element_text(angle = 90))
 
--SuperTree
+--SuperTree
 
 st<-superTree(gene_trees)
 st<-root(st,"H_vulgare_HVens23",resolve.root = T)
 plot(st)
 
--Densitree 
+--Densitree 
 
 densiTree(gene_trees,consensus=st,scaleX=T,type='cladogram', alpha=0.05)
 
@@ -183,12 +186,9 @@ trees_pruned <- lapply(
   function(tr) drop.tip(tr, setdiff(tr$tip.label, common_tips))
 )
 
-## to remove NULLs:
-## trees_pruned <- trees_pruned[!sapply(trees_pruned, is.null)]
-
 densityTree(trees_pruned,use.edge.length=FALSE,type="cladogram",nodes="centered")
 
--Comparison of ML trees for each of the 20 RAxML runs (visualization of the best tree across each run)
+--Comparison of ML trees for each of the 20 RAxML runs (visualization of the best tree across each run)
 
 trees = read.tree(file="Ae_bicornis_Tr406_BIS2_Contig10132_simExt_macseNT_noFS_clean.aln.raxml.mlTrees")
 
@@ -196,7 +196,7 @@ rtrees <- lapply(trees, function(tr) {
   root(tr, outgroup = "H_vulgare_HVens23", resolve.root = TRUE)
 })
 
-Plot densiTree before and after rooting
+--Plot densiTree before and after rooting
 
 densityTree(trees,type="cladogram",nodes="intermediate")
 densityTree(rtrees,type="cladogram",nodes="intermediate")
@@ -212,10 +212,10 @@ DATADIR="../data/Wheat_Relative_History_Data_Glemin_et_al/OneCopyGenes"
 
 -Inside code folder run the script
 
-cd code
-./04-raxml.sh
+% cd code
+% ./04-raxml.sh
 
--Visualize the trees 
+~ Visualize the trees 
 
 getwd() #we want to working in the results/RAxML folder 
 setwd(/Users/thalia/Documents/Path875/phylo-practicum/glemin-wheat/results/RAxML) 
@@ -239,8 +239,411 @@ write.tree(gene_trees, file="../04-all_gene_trees.tre")
 
 
 
-#05 Species tree supermatrix (full) 
+# 05 Species tree supermatrix (full) 
 
+--> Full concatenation
+
+#Keep in mind incomplete lineages (not as robust).
+#10 Mb windows -- snapshot into chromosomes --telling the same story across.If not, consider ILS, lateral gene transfer, recombination. 
+#Multiple introgression -- single vs multiple hybridization events (repeated vs single gene flow event)
+#specific regions tell certain stories 
+
+--Move to data/Wheat_Relative_History_Data_Glemin_et_al to run RAxML
+
+% cd /Users/thalia/Documents/Path875/phylo-practicum/glemin-wheat/data/Wheat_Relative_History_Data_Glemin_et_al 
+% raxml-ng --msa triticeae_allindividuals_OneCopyGenes.fasta --model GTR+G4
+
+--Move output files to the results folder
+
+% cd ../../results/RAxML/
+% mkdir full-concatenation
+% cd ../../data/Wheat_Relative_History_Data_Glemin_et_al
+% ls ## to check files are there
+% mv *.raxml* ../../results/RAxML/full-concatenation
+
+~ Visualization
+
+--Open R and move to results/RAxML/full-conatenation folder
+
+library(ape)
+library(phangorn)
+library(phytools)
+
+tre = read.tree(file="triticeae_allindividuals_OneCopyGenes.fasta.raxml.bestTree")
+plot(tre)
+nodelabels()
+
+--Root at the outgroup clade
+
+rtre = root(tre,node = 51, resolve.root=TRUE)
+plot(ladderize(rtre))
+
+--Compare to the one provided by the authors: MLtree_OneCopyGenes. tree
+
+tre2 = read.tree(file="../../../data/Wheat_Relative_History_Data_Glemin_et_al/MLtree_OneCopyGenes.tree")
+plot(tre2)
+rtre2 = root(tre2,node = 51, resolve.root=TRUE)
+plot(ladderize(rtre2))
+
+--Calculate the RF distance (topological dissimilarity) between our full cocatenation tree and theirs
+
+library(phangorn)
+RF.dist(tre,tre2) ## 0
+
+
+
+# 06 Species tree supermatrix (10 Mb)
+
+#Creating smaller concatentated files (10 Mb windows) to assess tree discordance 
+
+--Unzip 10 mB Concatenated Sequence files in the data/Wheat.. folder
+
+% cd Concatenation10Mb_OneCopyGenes
+% ls | wc -l 
+
+--Within code folder, run 
+
+% ./06-raxml-concatenation.sh
+
+~Visualization
+
+--Move to results/RAxML/10Mb-concatenation folder (in R)
+
+library(ape)
+library(phangorn)
+library(phytools)
+library(ggplot2)
+
+getwd()
+setwd("/Users/thalia/Documents/Path875/phylo-practicum/glemin-wheat/results/RAxML/10Mb-concatenation")
+
+tree_files <-list.files(pattern="\\.raxml.bestTree$") #List all .bestTree files. $ ensures the end of the name
+
+trees<- list() # list with all the trees
+class(trees)<- "multiPhylo" #make it a multiphylo object for ease of use with other 
+
+i<-1
+for(tree_file in tree_files){ ##go thru each file and read the tree
+  trees[[i]]<- read.tree(tree_file)
+  i<-i+1
+}
+
+--Root all trees by "H_vulgare_HVEns23"
+
+#re-reroot all our gene trees by the respective outgroup
+for(i in 1:length(trees)){
+  trees[[i]]<- root(trees[[i]],
+                         outgroup = "H_vulgare_HVens23",
+                         resolve.root=TRUE)
+  trees[[i]]<-chronos(trees[[i]]) ## make ultrametric for nicer densitree
+}
+
+--Create a consensus parsimony supertree
+
+st<-superTree(trees)
+st<-root(st,"H_vulgare_HVens23",resolve.root = T)
+plot(st)
+
+-- Plot the same density tree
+
+densiTree(trees,consensus=st,scaleX=T,type='cladogram', alpha=0.1)
+
+--Compare densitree with one made by the authors (Densitree_OneCopyGenes.nex)
+
+--Make some minor modifications (Densitree_OneCopyGenes_modified.nex):
+
+1. Added ; after "begin trees"
+2. Had to manually change taxon 0 as 47 
+
+trees2 <- read.nexus("/Users/thalia/Documents/Path875/phylo-practicum/glemin-wheat/data/Wheat_Relative_History_Data_Glemin_et_al/Densitree_OneCopyGenes-modified.nex")
+
+#re-reroot all our gene trees by the respective outgroup
+for(i in 1:length(trees2)){
+  trees2[[i]]<- root(trees2[[i]],
+                         outgroup = "H_vulgare_HVens23",
+                         resolve.root=TRUE)
+  trees2[[i]]<-chronos(trees2[[i]]) ## make ultrametric for nicer densitree
+}
+
+st2<-superTree(trees2)
+st2<-root(st2,"H_vulgare_HVens23",resolve.root = T)
+plot(st2)
+
+densiTree(trees2,consensus=st2,scaleX=T,type='cladogram', alpha=0.1)
+
+
+
+# 07 Species tree supertree/coalescent
+
+--> Species tree via supertree
+
+--Move to results folder and run this code
+
+% java -jar ~ /Users/thalia/software/supertriplets/SuperTriplets_v1.1.jar 04-all_gene_trees.tre 07-supertree.tre
+
+--Visulaize in R
+
+library(ape)
+tre = read.tree(file="07-supertree.tre")
+plot(tre)
+
+rtre = root(tre,outgroup="H_vulgare_HVens23", resolve.root=TRUE)
+plot(rtre)
+
+--Compare the tree with the more simple parsimony-based supertree that we constructed in 04-gene-trees
+
+library(phangorn)
+gene_trees <- read.tree("04-all_gene_trees.tre")
+st_parsimony<-superTree(gene_trees)
+st_parsimony<-root(st,"H_vulgare_HVens23",resolve.root = T)
+plot(st_parsimony)
+
+--> Species tree via coalescent models
+
+~At the individual level
+
+--Move to results path and run 
+
+% astral4 -i 04-all_gene_trees.tre -o 07-individual-species-tree-astral4.tre
+
+--Visualize in R (in results)
+
+library(ape)
+tre = read.tree(file="07-individual-species-tree-astral4.tre")
+plot(tre)
+rtre = root(tre,outgroup="H_vulgare_HVens23", resolve.root=TRUE)
+plot(rtre)
+
+~At the species level
+
+--Create this mapping in R (inside code)
+
+#First we get all the individual names
+genes_dir <- "/Users/thalia/Documents/Path875/phylo-practicum/glemin-wheat/data/Wheat_Relative_History_Data_Glemin_et_al/OneCopyGenes"
+gene_files<-paste(genes_dir,list.files(genes_dir,pattern='\\.aln$'),sep='')
+
+all_individuals <- character()
+i<-1
+for(f in gene_files){
+  headers <- rownames(read.dna(f, format = "fasta"))
+  all_individuals <- unique(c(all_individuals, headers))
+}
+all_individuals <- sort(all_individuals) # Sort alphabetically for consistency
+all_individuals
+
+cleaned_individuals <- sub("_[^_]+$", "", all_individuals)
+
+#map all individuals to species
+mapping <- paste(all_individuals,cleaned_individuals)
+writeLines(mapping, "../results/07-species_mapping.txt") ## write to file
+
+--Move to results path and run: 
+
+% astral4 -i 04-all_gene_trees.tre -a 07-species_mapping.txt -o 07-species-tree-astral4.tre
+
+--Visulaization in R
+
+library(ape)
+tre = read.tree(file="07-species-tree-astral4.tre")
+plot(tre)
+rtre = root(tre,outgroup="H_vulgare", resolve.root=TRUE)
+plot(rtre)
+
+
+
+# 08 Species tree visualizations
+
+--4 Estimated species trees (in results)
+
+
+1) full concatenation (RAxML/full-concatenation/triticeae_allindividuals_OneCopyGenes.fasta.raxml.bestTree)
+2) consensus of 10Mb window concatenation trees (folder RAxML/10Mb-concatenation)
+3) supertree (07-supertree.tre)
+4) ASTRAL4 tree (07-individual-species-tree-astral4.tre)
+
+--> Reproducing Figure 1A
+
+--In results (R): 
+
+library(ape)
+
+tree1 = read.tree(file="RAxML/full-concatenation/triticeae_allindividuals_OneCopyGenes.fasta.raxml.bestTree")
+tree2 = read.tree(file="07-supertree.tre")
+
+tree1 = root(tree1,outgroup="H_vulgare_HVens23", resolve.root=TRUE)
+tree2 = root(tree2,outgroup="H_vulgare_HVens23", resolve.root=TRUE)
+
+#Suppose your trees are called tree1 and tree2
+#First, ladderize both trees
+tree1 <- ladderize(tree1)
+tree2 <- ladderize(tree2[[2]])
+
+#Make sure they have the same tip labels
+common_tips <- intersect(tree1$tip.label, tree2$tip.label)
+
+length(common_tips)
+length(tree1$tip.label)
+length(tree2$tip.label)
+
+#Reorder the second tree to match the tip order of the first
+tree2 <- reorder.phylo(tree2, order = "cladewise")
+tree2 <- rotateConstr(tree2, tree1$tip.label) # rotate to match tree1 tip order
+
+#Plot side by side
+par(mfrow = c(1, 2))
+plot(tree1, main = "Full concatenation", cex = 0.8)
+plot(tree2, main = "Supertree", cex = 0.8)
+
+--Calculate RF distance
+
+library(phangorn)
+RF.dist(tree1, tree2) ## not zero!
+
+--Reproduce the edge colors on the full concatentation tree (tree1):
+
+library(ape)
+library(ggtree)
+library(dplyr)
+
+species_colors <- c(
+  "Ae_umbellulata" = "yellow",
+  "Ae_caudata" = "orange",
+  "Ae_comosa" = "darkorange3",
+  "Ae_uniaristata" = "sienna4",
+  "Ae_bicornis" = "purple",
+  "Ae_longissima" = "pink",
+  "Ae_sharonensis" = "mediumpurple1",
+  "Ae_searsii" = "maroon2",
+  "Ae_tauschii"    = "red",
+  "T_boeoticum" = "darkgreen",
+  "T_urartu" = "green",
+  "Ae_speltoides" = "blue4",
+  "Ae_mutica" = "steelblue1"
+)
+
+tip_species <- sapply(tree1$tip.label, function(x) {
+  parts <- strsplit(x, "_")[[1]]
+  paste(parts[1:2], collapse = "_")  # combine first two parts
+})
+tip_species <- as.factor(tip_species)
+
+
+p <- ggtree(tree1)
+
+#Loop over species to color clades
+for(sp in names(species_colors)) {
+  # Get tips belonging to this species
+  tips <- tree1$tip.label[tip_species == sp]
+  # Get MRCA node
+  node <- getMRCA(tree1, tips)
+  if(!is.null(node)) {
+    p <- p + geom_hilight(node = node, fill = species_colors[sp], alpha = 0.3)
+  }
+}
+
+#Add tip labels
+p <- p + geom_tiplab()
+p
+
+--Manually rotate some clades
+
+p + geom_text2(aes(subset = !isTip, label = node), hjust = -0.3)
+
+--Rotate the following clades
+
+p <- ggtree(tree1)
+
+p2 <- rotate(p, node = 55)
+p2 <- rotate(p2, node = 62)
+p2 <- rotate(p2, node = 50)
+p2 <- rotate(p2, node = 49)
+p2 <- rotate(p2, node = 69)
+p2 <- rotate(p2, node = 83)
+p2 <- rotate(p2, node = 88)
+p2 <- rotate(p2, node = 71)
+p2 <- rotate(p2, node = 74)
+
+
+for(sp in names(species_colors)) {
+  tips <- tree1$tip.label[tip_species == sp]
+  node <- getMRCA(tree1, tips)  # this works on phylo object
+  if(!is.null(node)) {
+    p2 <- p2 + geom_hilight(node = node, fill = species_colors[sp], alpha = 0.3)
+  }
+}
+
+p2 <- p2 + geom_tiplab()
+p2
+
+-->Reproducing Figure 1B
+
+--Need to be in results/RAxML/10 Mb-concatenation folder 
+
+library(ape)
+library(phangorn)
+library(phytools)
+library(ggplot2)
+
+tree_files <-list.files(pattern="\\.raxml.bestTree$") #List all .bestTree files. $ ensures the end of the name
+
+trees<- list() # list with all the trees
+class(trees)<- "multiPhylo" #make it a multiphylo object for ease of use with other 
+
+i<-1
+for(tree_file in tree_files){ ##go thru each file and read the tree
+  trees[[i]]<- read.tree(tree_file)
+  i<-i+1
+}
+
+--Root all trees by outgroup
+#re-reroot all our gene trees by the respective outgroup
+for(i in 1:length(trees)){
+  trees[[i]]<- root(trees[[i]],
+                         outgroup = "H_vulgare_HVens23",
+                         resolve.root=TRUE)
+  trees[[i]]<-chronos(trees[[i]]) ## make ultrametric for nicer densitree
+}
+
+--Create a consensus parsimony spupertree
+
+st<-superTree(trees)
+st<-root(st,"H_vulgare_HVens23",resolve.root = T)
+
+--Plot the same density tree as Figure 1B
+
+tree1ultra = chronos(tree1)
+
+png(filename="../../../figures/figure1b.png", width = 1800, height = 900, units = "px")
+par(mfrow=c(1,2), mar = c(0.1, 0.1, 0.1, 0.1))
+plot(tree1ultra, show.tip.label = FALSE)
+densiTree(trees,consensus=tree1, direction='leftwards', scaleX=T,type='cladogram', alpha=0.1)
+
+-->New coalescent-based species tree (ASTRAL4)
+
+--Plot the individual level species along with the full concatenation tree (tree1. In results, run this code:
+
+tree3 = read.tree(file="07-individual-species-tree-astral4.tre")
+tree3 = root(tree3,outgroup="H_vulgare_HVens23", resolve.root=TRUE)
+
+par(mfrow=c(1,2), mar = c(0.1, 0.1, 0.1, 0.1))
+plot(tree1)
+plot(tree3)
+
+
+--Calculate the RF distance
+
+RF.dist(tree1,tree3)
+
+--Compoare the species tree 
+
+tree4 = read.tree(file="07-species-tree-astral4.tre")
+tree4 = root(tree4,outgroup="H_vulgare", resolve.root=TRUE)
+
+par(mfrow=c(1,2), mar = c(0.1, 0.1, 0.1, 0.1))
+plot(tree1)
+plot(tree4)
+
+# 09 Species network
 
 
 
