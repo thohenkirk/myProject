@@ -425,7 +425,7 @@ genes_dir <- "/Users/thalia/Documents/Path875/phylo-practicum/glemin-wheat/data/
 gene_files <- list.files(genes_dir, pattern = "\\.aln$", full.names = TRUE)
 
 for(f in gene_files){
-  # read.dna comes from the 'ape' package
+  #read.dna comes from the 'ape' package
   headers <- rownames(read.dna(f, format = "fasta"))
   all_individuals <- unique(c(all_individuals, headers))
 }
