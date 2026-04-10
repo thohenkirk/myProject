@@ -19,7 +19,7 @@
 
 % cd ~/software/raxml-ng_v1.2.2_macos
 % chmod + x raxml-ng
-% raxml -ng -v (to very installation)
+% raxml -ng -v (to verify installation)
 
 -Add to PATH to run raxml-ng from any where 
 
@@ -419,16 +419,17 @@ plot(rtre)
 --Create this mapping in R (inside code)
 
 #First we get all the individual names
-genes_dir <- "/Users/thalia/Documents/Path875/phylo-practicum/glemin-wheat/data/Wheat_Relative_History_Data_Glemin_et_al/OneCopyGenes"
-gene_files<-paste(genes_dir,list.files(genes_dir,pattern='\\.aln$'),sep='')
+#Original code gave me issues, so I made some adjustments with help from Gemini.
 
-all_individuals <- character()
-i<-1
+genes_dir <- "/Users/thalia/Documents/Path875/phylo-practicum/glemin-wheat/data/Wheat_Relative_History_Data_Glemin_et_al/OneCopyGenes"
+gene_files <- list.files(genes_dir, pattern = "\\.aln$", full.names = TRUE)
+
 for(f in gene_files){
+  # read.dna comes from the 'ape' package
   headers <- rownames(read.dna(f, format = "fasta"))
   all_individuals <- unique(c(all_individuals, headers))
 }
-all_individuals <- sort(all_individuals) # Sort alphabetically for consistency
+all_individuals <- sort(all_individuals)
 all_individuals
 
 cleaned_individuals <- sub("_[^_]+$", "", all_individuals)
@@ -437,7 +438,7 @@ cleaned_individuals <- sub("_[^_]+$", "", all_individuals)
 mapping <- paste(all_individuals,cleaned_individuals)
 writeLines(mapping, "../results/07-species_mapping.txt") ## write to file
 
---Move to results path and run: 
+--Move to results path and run in Terminal: 
 
 % astral4 -i 04-all_gene_trees.tre -a 07-species_mapping.txt -o 07-species-tree-astral4.tre
 
@@ -532,9 +533,9 @@ p <- ggtree(tree1)
 
 #Loop over species to color clades
 for(sp in names(species_colors)) {
-  # Get tips belonging to this species
+  #Get tips belonging to this species
   tips <- tree1$tip.label[tip_species == sp]
-  # Get MRCA node
+  #Get MRCA node
   node <- getMRCA(tree1, tips)
   if(!is.null(node)) {
     p <- p + geom_hilight(node = node, fill = species_colors[sp], alpha = 0.3)
