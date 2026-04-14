@@ -644,7 +644,171 @@ par(mfrow=c(1,2), mar = c(0.1, 0.1, 0.1, 0.1))
 plot(tree1)
 plot(tree4)
 
+
+
 # 09 Species network
+
+-->Creating input files
+
+--In Julia, in the code folder
+
+using PhyloNetworks
+using SNaQ
+using CSV, DataFrames
+
+mappingfile = CSV.read("../results/07-species_mapping.txt", DataFrame; header=false, delim=' ')
+
+rename!(mappingfile, :Column1 => :individual)
+rename!(mappingfile, :Column2 => :species)
+
+select!(mappingfile,[:species, :individual])
+
+##We want to remove 3 of the 4 outgroups to simplify the analysis:
+##We keep `H_vulgare_HVens23`, 
+##We remove `Ta_caputMedusae_TB2`, `Er_bonaepartis_TB1`, `S_vavilovii_Tr279`
+filter(row -> row.species in ["Ta_caputMedusae", "Er_bonaepartis", "S_vavilovii"], mappingfile)
+size(mappingfile) ## (47,2)
+
+mappingfile = filter(row -> !(row.species in ["Ta_caputMedusae", "Er_bonaepartis", "S_vavilovii"]), mappingfile)
+size(mappingfile) ## (44, 2)
+
+CSV.write("../results/09-species_mapping.csv", mappingfile)
+
+##mappingfile = CSV.read("../results/09-species_mapping.csv", DataFrame)
+taxonmap = Dict(r[:individual] => r[:species] for r in eachrow(mappingfile)) # as dictionary
+
+#Read the gene trees and compute CF table
+
+--> Running SNaQ to infer phylogenetic network
+
+--Create a subfolder snaq in results folder
+
+--Open Terminal (in the code folder) to start a Julia session with multithreads 
+
+julia -t 2 
+
+--Inside Julia: 
+
+using Distributed
+addprocs(4)
+
+@everywhere using PhyloNetworks
+@everywhere using SNaQ
+
+##read table of CF
+d_sp = readtableCF("../results/09-tableCF_species.csv"); # "DataCF" object for use in snaq!
+#read in the species tree from ASTRAL as a starting point
+T_sp = readnewick("../results/07-species-tree-astral4.tre")
+
+net = snaq!(T_sp, d_sp, runs=100, Nfail=200, filename= "../results/snaq/09-snaq-h1",seed=8485);
+
+--Plot
+
+using PhyloPlots
+#net = readnewick("(Ae_sharonensis,Ae_longissima,(Ae_bicornis,(Ae_searsii,((Ae_tauschii,(((Ae_uniaristata,Ae_comosa)1:0.4918206502664954,(Ae_caudata,Ae_umbellulata)1:0.13449338165653227)1:0.00911821493436927,((T_boeoticum,T_urartu)1:1.6460105085783057,(H_vulgare,((Ae_speltoides,Ae_mutica)1:0.07124470208266999)#H26:0.14159810198824307::0.7563186990617421)1:0.1869824746969994)1:0.46325640725730144)0.99651:0.06048455134529327):0.16788568790821257,#H26:0.0::0.2436813009382579):0.45932787904385297)1:0.9296082436533977)1:0.5926597507029276)1;")
+plot(net, showedgenumber=true)
+
+--Root on the outgroup
+
+rootonedge!(net, 16)
+rotate!(net,22)
+rotate!(net,23)
+rotate!(net,-6)
+rotate!(net,12)
+rotate!(net,11)
+plot(net, showgamma=true)
+
+--Replicate the same colors seen in Figure 5 
+
+using DataFrames
+
+tipnodes = [n.number for n in net.node if n.leaf]
+tipnames = [n.name for n in net.node if n.leaf]
+
+tipcolors = Dict(
+    "T_urartu" => "darkolivegreen",
+    "T_boeoticum" => "darkolivegreen",
+    "Ae_comosa" => "chocolate",
+    "Ae_uniaristata" => "chocolate",
+    "Ae_caudata" => "khaki",
+    "Ae_umbellulata" => "gold",
+    "Ae_tauschii" => "red",
+    "Ae_longissima" => "mediumorchid",
+    "Ae_sharonensis" => "mediumorchid",
+    "Ae_bicornis" => "mediumorchid",
+    "Ae_searsii" => "mediumorchid",
+    "Ae_mutica" => "dodgerblue",
+    "Ae_speltoides" => "navy"
+)
+
+colors = [get(tipcolors, name, "black") for name in tipnames]
+
+nodelabel = DataFrame(
+    number = tipnodes,
+    label = tipnames,
+    nodelabelcolor = colors
+)
+
+plot(net, nodelabel = nodelabel)
+
+#Result doesn't look like Figure 5 
+
+
+
+# 10 Hybrid detection with HyDe
+
+--Move to code folder and open Python with python3
+
+-->Data Preparation for running HyDe 
+
+#We need to convert our sequences (in fasta format) to Phylip format by using the BioPython module.
+
+from Bio import AlignIO
+from Bio.AlignIO.PhylipIO import SequentialPhylipWriter
+
+data_path = "../data/Wheat_Relative_History_Data_Glemin_et_al/"
+concat_file = "triticeae_allindividuals_OneCopyGenes.fasta"
+
+fasta_file = data_path+concat_file
+phylip_file = "../results/10-triticeae_allindividuals_OneCopyGenes.phylip"
+
+#For the following codes. A helpful tip is copy line; hit enter; hit tab and copy next line; repeat until entire block is copied then hit return twice (enter x 2).
+
+# Load the alignment
+with open(fasta_file, "r") as f_in:
+    alignment = AlignIO.read(f_in, "fasta") --> where I'm stuck 
+
+# Find the length of the longest sequence ID to prevent truncation
+max_id_len = max(len(record.id) for record in alignment)
+
+# Write out the alignment (here)
+with open(phylip_file, "w") as f_out:
+    writer = SequentialPhylipWriter(f_out)
+    writer.write_alignment(alignment, id_width=max_id_len + 3) # 3 additional padding
+
+-->Running HyDe on the full concatenation 
+
+--Move to the code folder
+
+run_hyde.py -i ../results/10-triticeae_allindividuals_OneCopyGenes.phylip -m ../results/07-species_mapping.txt -o H_vulgare -n 47 -t 17 -s 11354214 --prefix 10-hyde
+
+--Move results to the results folder
+
+mv 10-hyde-out-filtered.txt ../results
+mv 10-hyde-out.txt ../results
+
+-->Running HyDe on 10mB windows
+
+
+
+
+
+
+
+
+
+
+
 
 
 
