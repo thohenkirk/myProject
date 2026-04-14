@@ -774,14 +774,14 @@ phylip_file = "../results/10-triticeae_allindividuals_OneCopyGenes.phylip"
 
 #For the following codes. A helpful tip is copy line; hit enter; hit tab and copy next line; repeat until entire block is copied then hit return twice (enter x 2).
 
-# Load the alignment
+#Load the alignment
 with open(fasta_file, "r") as f_in:
     alignment = AlignIO.read(f_in, "fasta") --> where I'm stuck 
 
-# Find the length of the longest sequence ID to prevent truncation
+#Find the length of the longest sequence ID to prevent truncation
 max_id_len = max(len(record.id) for record in alignment)
 
-# Write out the alignment (here)
+#Write out the alignment (here)
 with open(phylip_file, "w") as f_out:
     writer = SequentialPhylipWriter(f_out)
     writer.write_alignment(alignment, id_width=max_id_len + 3) # 3 additional padding
