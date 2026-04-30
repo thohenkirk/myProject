@@ -220,9 +220,8 @@ DATADIR="../data/Wheat_Relative_History_Data_Glemin_et_al/OneCopyGenes"
 getwd() #we want to working in the results/RAxML folder 
 setwd(/Users/thalia/Documents/Path875/phylo-practicum/glemin-wheat/results/RAxML) 
 
-ibrary(ape)
+library(ape)
 library(phangorn)
-
 
 tree_files <-list.files(pattern="\\.raxml.bestTree$") #List all .bestTree files. $ ensures the end of the name
 
@@ -605,7 +604,7 @@ for(i in 1:length(trees)){
   trees[[i]]<-chronos(trees[[i]]) ## make ultrametric for nicer densitree
 }
 
---Create a consensus parsimony spupertree
+--Create a consensus parsimony supertree
 
 st<-superTree(trees)
 st<-root(st,"H_vulgare_HVens23",resolve.root = T)
@@ -818,7 +817,7 @@ mv 10concatenation10Mb_OneCopy-phylip/*Chrom_3* 10concatenation10Mb_OneCopy-phyl
 
 
 
-#11 Hybrid detection with MSCQuartets
+# 11 Hybrid detection with MSCQuartets
 
 
 -->Run MSCQuartets in R 
@@ -895,7 +894,7 @@ for(pp1 in parents1){
     for(pp2 in parents2){
         if(pp1 == "Ae_mutica" && pp2 == "T_boeoticum") next
 
-        p1_cols   <- grep(pp1, names(df), value = TRUE)
+       p1_cols   <- grep(pp1, names(df), value = TRUE)
         p2_cols     <- grep(pp2, names(df), value = TRUE)
         for(h in hybrids){
             hyb_cols <- grep(h, names(df), value = TRUE)
@@ -975,7 +974,7 @@ ggplot(outdf, aes(x = hybrid, y = pval, fill = hybrid)) +
 
 --> How do we go from local signals of introgression (triplets/windows to claims about historical hybridization between clades?
 
-
+Activity 1: HyDe Mining 
 
 
 
