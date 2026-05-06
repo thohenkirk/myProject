@@ -1095,6 +1095,11 @@ ggplot(outdf, aes(x = hybrid, y = pval, fill = hybrid)) +
   )
 
 
+Notes: 
+
+-Incomplete lineage sorting -- minor topologies being same frequency?
+-Continuous introgression and gene flow
+-Sequential hybrid tests
 
 
 
